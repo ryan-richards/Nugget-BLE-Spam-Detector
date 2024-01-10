@@ -27,9 +27,9 @@ For example:
 
 - Flash the program onto your ESP32 S3 mini board.
 
-- Use the left and right directional buttons to select BLE detection threshold (default is 17).
+- Use the LEFT and RIGHT directional buttons to select BLE detection threshold (default is 17).
 
-- Press the up directional button to activate Bluetooth scanning.
+- Press the UP directional button to activate Bluetooth scanning.
 
 - The Nugget will repeatedly scan for BLE signals nearby.
 
