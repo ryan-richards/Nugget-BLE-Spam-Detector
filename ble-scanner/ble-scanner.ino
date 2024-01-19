@@ -51,7 +51,7 @@ public:
         }
         Screen::displayBluetoothOn();
       } else {
-        if (spamDevices.size() > 5) {
+        if (spamDevices.size() > 2) {
           Screen::displayBluetoothSpamSignal();
           Screen::updateSignalStrength(averageRSSIString.c_str());
         } else {
@@ -123,6 +123,7 @@ static void spamSignal() {
             Serial.print("\n");
             Serial.print("Average RSSI: ");
             Serial.println(averageRSSI);
+            spamDevices.clear();
         }
     }
 }
