@@ -1,5 +1,12 @@
 # Nugget BLE Spam Detector
 
+<p align="center">
+  <img src="img/ble-scanner.JPG" width="700px">
+  <br>
+  <b>Nugget BLE Detector</b>
+  <br>
+</p>
+
 Simple Bluetooth monitor + BLE spam detection.
 
 Works on ESP32 S3 mini + Nugget dev board from Retia.
