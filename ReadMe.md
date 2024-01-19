@@ -12,6 +12,12 @@ If the next scan finds any of the same MAC addresses, they get stored in a safe 
 
 BLE spam attacks rely on MAC randomization. Therefore, we can assume that a flood of random MAC addresses appearing only once can trigger spam detection if we exceed the safe threshold (default is 17).
 
+#### RSSI Signal
+
+Added a simple RSSI signal strength capture when a spam attack is detected. Any suspicious packets are stored in a spamList and reduced to a group of similar strengths. The avg RSSI is then displayed on screen.
+
+The idea being that you can walk around and see the signal strength get stronger when near a BLE spam attack device/source.
+
 For example:
 
 1. Power on Nugget (Press UP to start scanning).
@@ -21,7 +27,7 @@ For example:
 5. 3rd scan finds 30 unique devices.
 6. UI displays spam detected graphic + NEO-pixel turns red.
 7. 4th scan finds 25 more unique devices.
-8. After 60 secs, scan is reset so that our seen list won't get overloaded in case of a spam attack.
+8. After 120 secs, scan is reset so that our seen list won't get overloaded in case of a spam attack.
 
 ### How to use
 

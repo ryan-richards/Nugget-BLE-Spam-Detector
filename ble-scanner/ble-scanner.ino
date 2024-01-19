@@ -10,7 +10,12 @@
 
 const char* channelName = "advertised_devices";
 int scanTime = 10;
+int resetScanTime = 120000;
 BLEScan* pBLEScan;
+
+bool operator==(const BLEAdvertisedDevice& lhs, const BLEAdvertisedDevice& rhs) {
+    return const_cast<BLEAdvertisedDevice&>(lhs).getAddress().equals(const_cast<BLEAdvertisedDevice&>(rhs).getAddress());
+}
 
 class AdvertisedDevices : public BLEAdvertisedDeviceCallbacks {
   int numDevices;
@@ -22,7 +27,9 @@ public:
 
   static std::vector<std::string> seenMACAddresses;
   static std::vector<std::string> safeMACAddresses;
-  static unsigned long lastClearTime;  // Declare as static
+  static std::vector<BLEAdvertisedDevice> spamDevices;
+  static unsigned long lastClearTime;
+  static std::string averageRSSIString;
 
 
   void onResult(BLEAdvertisedDevice advertisedDevice) {
@@ -30,7 +37,6 @@ public:
     Serial.print(advertisedDevice.getAddress().toString().c_str());
 
     // Check proximity based on signal strength
-
     int rssi = advertisedDevice.getRSSI();
     Serial.print("- rssi ");
     Serial.println(rssi);
@@ -45,7 +51,13 @@ public:
         }
         Screen::displayBluetoothOn();
       } else {
-        Screen::displayBluetoothSpam();
+        if (spamDevices.size() > 5) {
+          Screen::displayBluetoothSpamSignal();
+          Screen::updateSignalStrength(averageRSSIString.c_str());
+        } else {
+          Screen::displayBluetoothSpam();
+        }
+        spamDevices.push_back(advertisedDevice);
         NeoPixel::setNeoPixelColour("red");
       }
     }
@@ -65,7 +77,6 @@ public:
       // MAC address is already seen, move it to safeMACAddresses and remove from seenMACAddresses
       safeMACAddresses.push_back(macAddress);
       seenMACAddresses.erase(itSeen);
-      Serial.print(" - added to safe");
       return false;
     } else {
       if (itSafe == safeMACAddresses.end()) {
@@ -78,14 +89,53 @@ public:
   }
 
 
+static void spamSignal() {
+    if (spamDevices.size() > 1) {
+        int totalRSSI = 0;
+        int count = 0;
+
+        std::vector<BLEAdvertisedDevice> devicesToRemove;
+
+        for (auto it = spamDevices.begin(); it != spamDevices.end(); ++it) {
+            BLEAdvertisedDevice currentDevice = *it;
+            int currentRSSI = currentDevice.getRSSI();
+
+            // Check if the device has a non-similar RSSI
+            if (std::abs(currentDevice.getRSSI() - currentRSSI) > 5) { // Adjust the threshold as needed
+                devicesToRemove.push_back(currentDevice);
+            } else {
+                totalRSSI += currentRSSI;
+                count++;
+            }
+        }
+
+        // Remove non-similar devices
+        for (const auto& device : devicesToRemove) {
+            auto it = std::find(spamDevices.begin(), spamDevices.end(), device);
+            if (it != spamDevices.end()) {
+                spamDevices.erase(it);
+            }
+        }
+
+        if (count > 0) {
+            int averageRSSI = totalRSSI / count;
+            averageRSSIString = std::to_string(averageRSSI);
+            Serial.print("\n");
+            Serial.print("Average RSSI: ");
+            Serial.println(averageRSSI);
+        }
+    }
+}
+
   static void clearSeenMACAddresses() {  // Declare as static
     seenMACAddresses.clear();
+    spamDevices.clear();
     lastClearTime = millis();
   }
 
   static void checkAndClearListPeriodically() {  // Declare as static
     // Clear the list every minute (adjust the interval as needed)
-    if (millis() - lastClearTime > 60000) {
+    if (millis() - lastClearTime > resetScanTime) {
       Screen::displayBluetoothOn();
        NeoPixel::setNeoPixelColour("off");
       clearSeenMACAddresses();
@@ -95,10 +145,12 @@ public:
 
 std::vector<std::string> AdvertisedDevices::seenMACAddresses;
 std::vector<std::string> AdvertisedDevices::safeMACAddresses;
+std::vector<BLEAdvertisedDevice> AdvertisedDevices::spamDevices;
 unsigned long AdvertisedDevices::lastClearTime = 0;
+std::string AdvertisedDevices::averageRSSIString = "";
 
 void setup() {
-  Serial.setRxBufferSize(1024);
+  // Serial.setRxBufferSize(1024);
   Serial.begin(115200);
   Serial.println("BLE Attack Detector");
 
@@ -111,7 +163,7 @@ void setup() {
   NeoPixel::setupNeoPixel();
 
   std::vector<String> colors = { "blue", "off", "blue" };
-  NeoPixel::flash(3, colors, "off");
+  NeoPixel::flash(2, colors, "off");
 
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
@@ -128,6 +180,7 @@ void loop() {
     BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
     pBLEScan->clearResults();
     delay(1000);
+    AdvertisedDevices::spamSignal();
     AdvertisedDevices::checkAndClearListPeriodically();
   }
 

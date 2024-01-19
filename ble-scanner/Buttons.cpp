@@ -16,13 +16,16 @@ Bounce buttons[numButtons];
 int lastPressedButton = -1;
 int maxDifferentDevices = 17;
 
+int lastClearTime = 0;
+int lastPressedButton2 = 1000;
+
 Buttons::Buttons() {
 }
 
 void Buttons::setupButtons() {
   for (int i = 0; i < numButtons; i++) {
     buttons[i].attach(buttonPins[i], INPUT_PULLUP);
-    buttons[i].interval(5); // Adjust the debounce interval if needed
+    buttons[i].interval(5);
   }
 }
 
@@ -30,9 +33,8 @@ void Buttons::updateButtons() {
   for (int i = 0; i < numButtons; i++) {
     buttons[i].update();
 
-    // Check if a button was pressed (fell)
     if (buttons[i].fell()) {
-      lastPressedButton = i;  // Store the index of the last pressed button
+      lastPressedButton = i;
 
       switch (i) {
         case 0: // Button 0 (up_btn) was pressed
@@ -40,13 +42,12 @@ void Buttons::updateButtons() {
             Screen::displayBluetoothOn();
           break;
         case 1: // Button 1 (dn_btn) was pressed
-          // Add your logic for the "down" button here
-          // Example: perform an action for the "down" button
           NeoPixel::setNeoPixelColour("off");
           Screen::displayBluetoothOff();
           break;
         case 2: // Button 2 (lt_btn) was pressed
           maxDifferentDevices = (maxDifferentDevices - 1 + 99) % 99;
+          NeoPixel::setNeoPixelColour("blue");
           break;
         case 3: // Button 3 (rt_btn) was pressed
           maxDifferentDevices = (maxDifferentDevices + 1) % 99;
