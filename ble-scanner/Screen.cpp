@@ -64,6 +64,16 @@ void Screen::displayBluetoothSpamSignal() {
   display.display();
 }
 
+void Screen::displayFlipperSpamSignal() {
+  display.clear();
+  display.drawString(55, 16, signalRSSI);
+  display.drawXbm(0, 0, 128, 64, flipper_bits);
+  display.drawLine(0, 53, 127, 53);
+  display.drawLine(0, 54, 127, 54);
+  display.drawString(0, 54, sectionText);
+  display.display();
+}
+
 void Screen::updateSectionText(const char* newText) {
   sectionText = newText;
   display.setColor(BLACK);

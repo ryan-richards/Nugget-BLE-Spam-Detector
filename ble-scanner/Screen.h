@@ -10,6 +10,7 @@ public:
     static void displayBluetoothOn();
     static void displayBluetoothSpam();
     static void displayBluetoothSpamSignal();
+    static void displayFlipperSpamSignal();
     static void displaySplash(uint8_t sec);
     static void updateSectionText(const char* newText);
     static void updateSignalStrength(const char* newText);

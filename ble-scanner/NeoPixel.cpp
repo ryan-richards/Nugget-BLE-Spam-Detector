@@ -28,6 +28,9 @@ void NeoPixel::setNeoPixelColour(String colour) {
   } else if (colour == "yellow") {
     strip.setPixelColor(0, strip.Color(255, 255, 0));
     strip.show();
+  } else if (colour == "orange") {
+    strip.setPixelColor(0, strip.Color(255, 165, 0)); 
+    strip.show();
   } else if (colour == "purple") {
     strip.setPixelColor(0, strip.Color(255, 0, 255));
     strip.show();

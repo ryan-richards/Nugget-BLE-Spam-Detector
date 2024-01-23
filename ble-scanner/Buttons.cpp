@@ -47,7 +47,6 @@ void Buttons::updateButtons() {
           break;
         case 2: // Button 2 (lt_btn) was pressed
           maxDifferentDevices = (maxDifferentDevices - 1 + 99) % 99;
-          NeoPixel::setNeoPixelColour("blue");
           break;
         case 3: // Button 3 (rt_btn) was pressed
           maxDifferentDevices = (maxDifferentDevices + 1) % 99;
