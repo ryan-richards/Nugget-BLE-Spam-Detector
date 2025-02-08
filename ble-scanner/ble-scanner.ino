@@ -112,8 +112,8 @@ public:
   }
 
   bool isUniqueDevice(BLEAdvertisedDevice& device) {
-    // Get the MAC address as a string
-    std::string macAddress = device.getAddress().toString();
+    // Convert Arduino String to std::string using c_str()
+    std::string macAddress = device.getAddress().toString().c_str();
 
     // Check if the MAC address is in the list of seen addresses
     auto itSeen = std::find(seenMACAddresses.begin(), seenMACAddresses.end(), macAddress);
@@ -138,18 +138,17 @@ public:
   }
 
   bool isUniqueFlipperDevice(BLEAdvertisedDevice& device) {
-
-    std::string deviceID = device.getServiceUUID().toString();
+    // Convert Arduino String to std::string using c_str()
+    std::string deviceID = device.getServiceUUID().toString().c_str();
 
     auto itSeen = std::find(uniqueFlipperDevices.begin(), uniqueFlipperDevices.end(), deviceID);
     if (itSeen == uniqueFlipperDevices.end()) {
       uniqueFlipperDevices.push_back(deviceID);
       return true;
     } 
-      return false;
-    }
-
-
+    return false;
+  }
+  
   static void spamSignal() {
     if (spamDevices.size() > 1) {
       int totalRSSI = 0;
